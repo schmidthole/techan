@@ -1,7 +1,6 @@
 ## Techan
-![](https://travis-ci.org/sdcoffey/techan.svg?branch=master)
 
-[![codecov](https://codecov.io/gh/sdcoffey/techan/branch/master/graph/badge.svg)](https://codecov.io/gh/sdcoffey/techan)
+**NOTE:** This is my fork of the original techan library found at [https://github.com/sdcoffey/techan](https://github.com/sdcoffey/techan)
 
 TechAn is a **tech**nical **an**alysis library for Go! It provides a suite of tools and frameworks to analyze financial data and make trading decisions.
 
@@ -72,11 +71,6 @@ strategy := techan.RuleStrategy{
 
 strategy.ShouldEnter(0, record) // returns false
 ```
-
-### Enjoying this project?
-Are you using techan in production? You can sponsor its development by buying me a coffee! ☕
-
-**ETH:** `0x2D9d3A1c16F118A3a59d0e446d574e1F01F62949`
 
 ### Credits
 Techan is heavily influenced by the great [ta4j](https://github.com/ta4j/ta4j). Many of the ideas and frameworks in this library owe their genesis to the great work done over there.
