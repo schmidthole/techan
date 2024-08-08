@@ -11,7 +11,7 @@ TechAn is a **tech**nical **an**alysis library for Go! It provides a suite of to
 
 ### Installation
 ```sh
-$ go get github.com/sdcoffey/techan
+$ go get github.com/schmidthole/techan
 ```
 
 ### Quickstart
