@@ -33,6 +33,9 @@ func NewPosition(order *Order) *Position {
 // of the account placing the order a positive (for sells) or negative (for buys) big.Decimal is
 // returned to denote how the account's cash should be modified.
 //
+// This function will also update the price of the position to that of the order. Prices can
+// always be synced outside of this function using UpdatePrice.
+//
 // Only long positions are supported currently.
 func (p *Position) ExecuteOrder(order *Order) error {
 	if (p.Side == BUY) && (order.Side == BUY) {
@@ -41,6 +44,7 @@ func (p *Position) ExecuteOrder(order *Order) error {
 
 		p.AvgEntryPrice = newTotalValue.Div(newAmount)
 		p.Amount = newAmount
+		p.Price = order.Price
 
 		return nil
 	} else if (p.Side == BUY) && (order.Side == SELL) {
@@ -55,6 +59,7 @@ func (p *Position) ExecuteOrder(order *Order) error {
 		}
 
 		p.Amount = intermediate
+		p.Price = order.Price
 
 		return nil
 	} else {
@@ -67,11 +72,6 @@ func (p *Position) IsClosed() bool {
 	return p.Amount.EQ(big.ZERO)
 }
 
-// CostBasis returns the price to enter this order
-func (p *Position) CostBasis() big.Decimal {
-	return p.Amount.Mul(p.AvgEntryPrice)
-}
-
 // Update the current price to reflect realtime values and to calculate unrealized gains/equity
 func (p *Position) UpdatePrice(newPrice big.Decimal) {
 	p.Price = newPrice
@@ -80,9 +80,4 @@ func (p *Position) UpdatePrice(newPrice big.Decimal) {
 // Calculate the unrealized equity of an open position
 func (p *Position) UnrealizedEquity() big.Decimal {
 	return p.Amount.Mul(p.Price)
-}
-
-// Calculate the unrealized gains of an open position
-func (p *Position) UnrealizedGains() big.Decimal {
-	return p.Price.Sub(p.AvgEntryPrice).Mul(p.Amount)
 }
