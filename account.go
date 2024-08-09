@@ -3,15 +3,15 @@ package techan
 import (
 	"fmt"
 
-	"github.com/sdcoffey/big"	
+	"github.com/sdcoffey/big"
 )
 
 // Account is an object describing a trading account, including trading record, open positions
 // and current cash on hand.
 type Account struct {
-	Positions       map[string]*Position
-	Cash            big.Decimal
-	TradeRecord     []*Order
+	Positions   map[string]*Position
+	Cash        big.Decimal
+	TradeRecord []*Order
 }
 
 // NewAccount returns a new Account
@@ -94,7 +94,7 @@ func (a *Account) ExecuteOrder(order *Order) error {
 			a.Cash,
 		)
 	}
-	
+
 	_, exists := a.Positions[order.Security]
 
 	// operate on the position or create a new one

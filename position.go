@@ -23,7 +23,7 @@ func NewPosition(order *Order) *Position {
 	pos.Amount = order.Amount
 	pos.AvgEntryPrice = order.Price
 	pos.Price = order.Price
-	
+
 	return pos
 }
 
