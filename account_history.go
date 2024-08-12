@@ -46,3 +46,8 @@ func (ah *AccountHistory) ApplySnapshot(accountSnapshot *AccountSnapshot, pricin
 
 	return nil
 }
+
+// Helper function to return the last index of snapshot data.
+func (ah *AccountHistory) LastIndex() int {
+	return len(ah.Snapshots) - 1
+}
