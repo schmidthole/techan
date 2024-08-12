@@ -8,7 +8,7 @@ type IncreaseRule struct {
 
 // IsSatisfied returns true when the given Indicator at the given index is greater than the value at the previous
 // index.
-func (ir IncreaseRule) IsSatisfied(index int, record *TradingRecord) bool {
+func (ir IncreaseRule) IsSatisfied(index int) bool {
 	if index == 0 {
 		return false
 	}
@@ -24,7 +24,7 @@ type DecreaseRule struct {
 
 // IsSatisfied returns true when the given Indicator at the given index is less than the value at the previous
 // index.
-func (dr DecreaseRule) IsSatisfied(index int, record *TradingRecord) bool {
+func (dr DecreaseRule) IsSatisfied(index int) bool {
 	if index == 0 {
 		return false
 	}
