@@ -51,3 +51,9 @@ func (ah *AccountHistory) ApplySnapshot(accountSnapshot *AccountSnapshot, pricin
 func (ah *AccountHistory) LastIndex() int {
 	return len(ah.Snapshots) - 1
 }
+
+// Helper function to return a price at a given snapshot index.
+func (ah *AccountHistory) PriceAtIndex(security string, index int) (big.Decimal, bool) {
+	price, exists := ah.Prices[index].Prices[security]
+	return price, exists
+}
