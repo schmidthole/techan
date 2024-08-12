@@ -15,6 +15,15 @@ type Position struct {
 	Price         big.Decimal
 }
 
+// Snapshot of position used to document account history
+type PositionSnapshot struct {
+	Security       string
+	Side           OrderSide
+	Amount         big.Decimal
+	Price          big.Decimal
+	UnrealizedGain big.Decimal
+}
+
 // NewPosition returns a new Position with the passed-in order as the open order
 func NewPosition(order *Order) *Position {
 	pos := new(Position)
@@ -80,4 +89,21 @@ func (p *Position) UpdatePrice(newPrice big.Decimal) {
 // Calculate the unrealized equity of an open position
 func (p *Position) UnrealizedEquity() big.Decimal {
 	return p.Amount.Mul(p.Price)
+}
+
+// Computes the unrealized gain since the posiion was entered.
+func (p *Position) UnrealizedGain() big.Decimal {
+	return p.Amount.Mul(p.Price).Sub(p.Amount.Mul(p.AvgEntryPrice))
+}
+
+// export a snapshot of this position at the current state.
+func (p *Position) ExportSnapshot() *PositionSnapshot {
+	snapshot := new(PositionSnapshot)
+	snapshot.Amount = p.Amount
+	snapshot.Price = p.Price
+	snapshot.Security = p.Security
+	snapshot.UnrealizedGain = p.UnrealizedGain()
+	snapshot.Side = p.Side
+
+	return snapshot
 }

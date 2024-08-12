@@ -103,6 +103,10 @@ func (a *Account) ExecuteOrder(order *Order) error {
 		if err != nil {
 			return err
 		}
+
+		if a.Positions[order.Security].IsClosed() {
+			delete(a.Positions, order.Security)
+		}
 	} else if !exists && (order.Side == BUY) {
 		pos := NewPosition(order)
 		a.Positions[order.Security] = pos
@@ -124,4 +128,21 @@ func (a *Account) ExecuteOrder(order *Order) error {
 	a.TradeRecord = append(a.TradeRecord, order)
 
 	return nil
+}
+
+// Exports a snapshot of the current account state to be used in the account history
+// and analysis tooling.
+func (a *Account) ExportSnapshot(period TimePeriod) *AccountSnapshot {
+	snapshot := new(AccountSnapshot)
+
+	snapshot.Period = period
+	snapshot.Cash = a.Cash
+	snapshot.Equity = a.Equity()
+
+	snapshot.Positions = make([]*PositionSnapshot, 0)
+	for _, value := range a.Positions {
+		snapshot.Positions = append(snapshot.Positions, value.ExportSnapshot())
+	}
+
+	return snapshot
 }
