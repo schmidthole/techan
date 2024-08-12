@@ -19,7 +19,7 @@ func mockPosition() *Position {
 
 func TestPosition_NewPosition(t *testing.T) {
 	position := mockPosition()
-	
+
 	assert.Equal(t, position.Side, mockOrder.Side)
 	assert.Equal(t, position.Amount, mockOrder.Amount)
 	decimalEquals(t, 2.0, position.Price)
@@ -30,12 +30,12 @@ func TestPosition_ExecuteOrder_Add(t *testing.T) {
 	position := mockPosition()
 
 	orderAdd := Order{
-		Side: BUY,
+		Side:   BUY,
 		Amount: big.NewFromString("2"),
-		Price: big.NewFromString("3"),
+		Price:  big.NewFromString("3"),
 	}
 
-	err :=position.ExecuteOrder(&orderAdd)
+	err := position.ExecuteOrder(&orderAdd)
 	assert.Nil(t, err)
 
 	decimalEquals(t, 4.0, position.Amount)
@@ -47,9 +47,9 @@ func TestPosition_ExecuteOrder_Sell(t *testing.T) {
 	position := mockPosition()
 
 	orderSell := Order{
-		Side: SELL,
+		Side:   SELL,
 		Amount: big.ONE,
-		Price: big.NewFromString("3"),
+		Price:  big.NewFromString("3"),
 	}
 
 	err := position.ExecuteOrder(&orderSell)
@@ -65,9 +65,9 @@ func TestPosition_ExecuteOrder_SellAll_Close(t *testing.T) {
 	position := mockPosition()
 
 	orderSell := Order{
-		Side: SELL,
+		Side:   SELL,
 		Amount: big.NewFromString("2"),
-		Price: big.NewFromString("3"),
+		Price:  big.NewFromString("3"),
 	}
 
 	err := position.ExecuteOrder(&orderSell)
@@ -83,9 +83,9 @@ func TestPosition_ExecuteOrder_SellTooMany(t *testing.T) {
 	position := mockPosition()
 
 	orderSell := Order{
-		Side: SELL,
+		Side:   SELL,
 		Amount: big.NewFromString("3"),
-		Price: big.NewFromString("3"),
+		Price:  big.NewFromString("3"),
 	}
 
 	err := position.ExecuteOrder(&orderSell)
@@ -99,13 +99,13 @@ func TestPosition_ExecuteOrder_TryToSellShort(t *testing.T) {
 	position := mockPosition()
 
 	orderSell := Order{
-		Side: SELL,
+		Side:   SELL,
 		Amount: big.NewFromString("3"),
-		Price: big.NewFromString("3"),
+		Price:  big.NewFromString("3"),
 	}
 
 	position.Side = SELL
-	
+
 	err := position.ExecuteOrder(&orderSell)
 	assert.NotNil(t, err)
 }
