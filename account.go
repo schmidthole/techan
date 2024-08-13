@@ -19,6 +19,7 @@ func NewAccount() (a *Account) {
 	a = new(Account)
 	a.Positions = make(map[string]*Position)
 	a.Cash = big.ZERO
+	a.TradeRecord = make([]*Order, 0)
 	return a
 }
 
