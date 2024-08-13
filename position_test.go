@@ -7,10 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var MOCK_SECURITY = "FAKE"
+
 var mockOrder = Order{
-	Side:   BUY,
-	Amount: big.NewFromString("2"),
-	Price:  big.NewFromString("2"),
+	Security: MOCK_SECURITY,
+	Side:     BUY,
+	Amount:   big.NewFromString("2"),
+	Price:    big.NewFromString("2"),
 }
 
 func mockPosition() *Position {

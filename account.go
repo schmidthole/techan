@@ -31,14 +31,14 @@ func (a *Account) OpenPosition(security string) (*Position, bool) {
 
 // Enters a cash deposit into the account structure
 func (a *Account) Deposit(cash big.Decimal) {
-	a.Cash.Add(cash)
+	a.Cash = a.Cash.Add(cash)
 }
 
 // Withdraws a cash sum from the account structure
 func (a *Account) Withdraw(cash big.Decimal) error {
 	intermediate := a.Cash.Sub(cash)
 
-	if a.Cash.LT(big.ZERO) {
+	if intermediate.LT(big.ZERO) {
 		return fmt.Errorf(
 			"insufficient funds. cannot withdraw %v from %v",
 			cash.String(),
@@ -53,7 +53,7 @@ func (a *Account) Withdraw(cash big.Decimal) error {
 // Updates prices for all open positions. If a price is not provided for a given position its price
 // is not updated
 func (a *Account) UpdatePrices(prices map[string]big.Decimal) {
-	for key, _ := range a.Positions {
+	for key := range a.Positions {
 		price, exists := prices[key]
 		if exists {
 			a.Positions[key].UpdatePrice(price)
@@ -69,7 +69,7 @@ func (a *Account) HasSufficientFunds(order *Order) bool {
 		return true
 	}
 
-	return order.CostBasis().LT(a.Cash)
+	return order.CostBasis().LTE(a.Cash)
 }
 
 // Calculates the total equity of the account including unrealized equity for open positions
@@ -78,7 +78,7 @@ func (a *Account) Equity() big.Decimal {
 	equity = equity.Add(a.Cash)
 
 	for _, pos := range a.Positions {
-		equity.Add(pos.UnrealizedEquity())
+		equity = equity.Add(pos.UnrealizedEquity())
 	}
 
 	return equity
