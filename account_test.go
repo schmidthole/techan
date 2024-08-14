@@ -2,6 +2,7 @@ package techan
 
 import (
 	"testing"
+	"time"
 
 	"github.com/sdcoffey/big"
 	"github.com/stretchr/testify/assert"
@@ -240,4 +241,28 @@ func TestAccount_ExecuteOrderAddSellAll(t *testing.T) {
 	assert.Nil(t, pos)
 
 	decimalEquals(t, 46.0, acct.Cash)
+}
+
+func TestAccount_ExportSnapshot(t *testing.T) {
+	acct := NewAccount()
+	acct.Deposit(big.NewDecimal(40.0))
+	order := Order{
+		Security: MOCK_SECURITY,
+		Side:     BUY,
+		Price:    big.NewDecimal(1.0),
+		Amount:   big.NewDecimal(3.0),
+	}
+
+	err := acct.ExecuteOrder(&order)
+	assert.Nil(t, err)
+
+	snapshot := acct.ExportSnapshot(NewTimePeriod(time.Now(), time.Hour*24))
+	decimalEquals(t, 40.0, snapshot.Equity)
+	decimalEquals(t, 37.0, snapshot.Cash)
+	assert.Equal(t, 1, len(snapshot.Positions))
+
+	snapPos := snapshot.Positions[0]
+	assert.Equal(t, MOCK_SECURITY, snapPos.Security)
+	decimalEquals(t, 1.0, snapPos.Price)
+	decimalEquals(t, 3.0, snapPos.Amount)
 }
