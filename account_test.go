@@ -101,3 +101,143 @@ func TestAccount_Equity(t *testing.T) {
 	acct.UpdatePrices(map[string]big.Decimal{MOCK_SECURITY: big.NewDecimal(3.0)})
 	decimalEquals(t, 10.0, acct.Equity())
 }
+
+func TestAccount_ExecuteOrderInsufficientFunds(t *testing.T) {
+	acct := NewAccount()
+	order := Order{
+		Side:   BUY,
+		Price:  big.NewDecimal(1.0),
+		Amount: big.NewDecimal(1.0),
+	}
+
+	err := acct.ExecuteOrder(&order)
+	assert.NotNil(t, err)
+}
+
+func TestAccount_ExecuteOrderCannotShort(t *testing.T) {
+	acct := NewAccount()
+	acct.Deposit(big.NewDecimal(40.0))
+	order := Order{
+		Side:   SELL,
+		Price:  big.NewDecimal(1.0),
+		Amount: big.NewDecimal(1.0),
+	}
+
+	err := acct.ExecuteOrder(&order)
+	assert.NotNil(t, err)
+}
+
+func TestAccount_ExecuteOrderNewPosition(t *testing.T) {
+	acct := NewAccount()
+	acct.Deposit(big.NewDecimal(40.0))
+	order := Order{
+		Security: MOCK_SECURITY,
+		Side:     BUY,
+		Price:    big.NewDecimal(1.0),
+		Amount:   big.NewDecimal(1.0),
+	}
+
+	err := acct.ExecuteOrder(&order)
+	assert.Nil(t, err)
+
+	pos, exists := acct.OpenPosition(MOCK_SECURITY)
+	assert.True(t, exists)
+	assert.NotNil(t, pos)
+
+	decimalEquals(t, 39.0, acct.Cash)
+}
+
+func TestAccount_ExecuteOrderAddToPosition(t *testing.T) {
+	acct := NewAccount()
+	acct.Deposit(big.NewDecimal(40.0))
+	order := Order{
+		Security: MOCK_SECURITY,
+		Side:     BUY,
+		Price:    big.NewDecimal(1.0),
+		Amount:   big.NewDecimal(1.0),
+	}
+
+	err := acct.ExecuteOrder(&order)
+	assert.Nil(t, err)
+
+	order2 := Order{
+		Security: MOCK_SECURITY,
+		Side:     BUY,
+		Price:    big.NewDecimal(3.0),
+		Amount:   big.NewDecimal(1.0),
+	}
+
+	err = acct.ExecuteOrder(&order2)
+	assert.Nil(t, err)
+
+	pos, exists := acct.OpenPosition(MOCK_SECURITY)
+	assert.True(t, exists)
+	assert.NotNil(t, pos)
+
+	decimalEquals(t, 36.0, acct.Cash)
+
+	decimalEquals(t, 2.0, pos.AvgEntryPrice)
+	decimalEquals(t, 2.0, pos.Amount)
+}
+
+func TestAccount_ExecuteOrderAddSellPartial(t *testing.T) {
+	acct := NewAccount()
+	acct.Deposit(big.NewDecimal(40.0))
+	order := Order{
+		Security: MOCK_SECURITY,
+		Side:     BUY,
+		Price:    big.NewDecimal(1.0),
+		Amount:   big.NewDecimal(3.0),
+	}
+
+	err := acct.ExecuteOrder(&order)
+	assert.Nil(t, err)
+
+	order2 := Order{
+		Security: MOCK_SECURITY,
+		Side:     SELL,
+		Price:    big.NewDecimal(3.0),
+		Amount:   big.NewDecimal(1.0),
+	}
+
+	err = acct.ExecuteOrder(&order2)
+	assert.Nil(t, err)
+
+	pos, exists := acct.OpenPosition(MOCK_SECURITY)
+	assert.True(t, exists)
+	assert.NotNil(t, pos)
+
+	decimalEquals(t, 40.0, acct.Cash)
+
+	decimalEquals(t, 2.0, pos.Amount)
+}
+
+func TestAccount_ExecuteOrderAddSellAll(t *testing.T) {
+	acct := NewAccount()
+	acct.Deposit(big.NewDecimal(40.0))
+	order := Order{
+		Security: MOCK_SECURITY,
+		Side:     BUY,
+		Price:    big.NewDecimal(1.0),
+		Amount:   big.NewDecimal(3.0),
+	}
+
+	err := acct.ExecuteOrder(&order)
+	assert.Nil(t, err)
+
+	order2 := Order{
+		Security: MOCK_SECURITY,
+		Side:     SELL,
+		Price:    big.NewDecimal(3.0),
+		Amount:   big.NewDecimal(3.0),
+	}
+
+	err = acct.ExecuteOrder(&order2)
+	assert.Nil(t, err)
+
+	pos, exists := acct.OpenPosition(MOCK_SECURITY)
+	assert.False(t, exists)
+	assert.Nil(t, pos)
+
+	decimalEquals(t, 46.0, acct.Cash)
+}

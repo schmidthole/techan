@@ -109,8 +109,7 @@ func (a *Account) ExecuteOrder(order *Order) error {
 			delete(a.Positions, order.Security)
 		}
 	} else if !exists && (order.Side == BUY) {
-		pos := NewPosition(order)
-		a.Positions[order.Security] = pos
+		a.Positions[order.Security] = NewPosition(order)
 	} else {
 		return fmt.Errorf(
 			"cannot enter a short position for %v shares of %v",
