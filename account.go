@@ -14,6 +14,14 @@ type Account struct {
 	TradeRecord []*Order
 }
 
+// An AccountSnapshot provides the point in time state of an account and its positions.
+type AccountSnapshot struct {
+	Period    TimePeriod
+	Equity    big.Decimal
+	Cash      big.Decimal
+	Positions []*PositionSnapshot
+}
+
 // NewAccount returns a new Account
 func NewAccount() (a *Account) {
 	a = new(Account)

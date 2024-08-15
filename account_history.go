@@ -6,14 +6,6 @@ import (
 	"github.com/sdcoffey/big"
 )
 
-// An AccountSnapshot provides the point in time state of an account and its positions.
-type AccountSnapshot struct {
-	Period    TimePeriod
-	Equity    big.Decimal
-	Cash      big.Decimal
-	Positions []*PositionSnapshot
-}
-
 // The PricingSnapshot provides point in time pricing information for all tracked securities,
 // including the bechmark if used. The period for each snapshot should match a period supplied
 // in an account snapshot.
@@ -29,6 +21,14 @@ type AccountHistory struct {
 	Securities []string
 	Prices     []*PricingSnapshot
 	Snapshots  []*AccountSnapshot
+}
+
+func NewAccountHistory() *AccountHistory {
+	return &AccountHistory{
+		Securities: make([]string, 0),
+		Prices:     make([]*PricingSnapshot, 0),
+		Snapshots:  make([]*AccountSnapshot, 0),
+	}
 }
 
 // Add a new account and pricing snapshot to the history.
