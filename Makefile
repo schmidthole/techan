@@ -20,14 +20,6 @@ lint:
 bench: clean
 	go test -bench .
 
-commit: test
-	git commit
-
-release: clean test lint
-	./scripts/release.sh
-
-test-with-coverage:
-	go test -race -cover -covermode=atomic -coverprofile=coverage.txt github.com/schmidthole/techan
-
-view-coverage: test-with-coverage
-	go tool cover -html coverage.txt
+coverage:
+	go test . -coverprofile=cover.out
+	go tool cover -func=cover.out
