@@ -3,3 +3,4 @@ vendor
 .idea/*
 bin/*
 coverage.txt
+cover.out
