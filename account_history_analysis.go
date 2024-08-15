@@ -18,7 +18,7 @@ func (ah *AccountHistory) PercentGain() big.Decimal {
 		return big.ZERO
 	}
 
-	return ah.TotalProfit().Div(ah.Snapshots[0].Equity)
+	return ah.TotalProfit().Div(ah.Snapshots[0].Equity).Mul(big.NewDecimal(100.00))
 }
 
 // Get the total profit for a buy and hold of the benchmark security.
@@ -28,7 +28,7 @@ func (ah *AccountHistory) BenchmarkBuyHoldTotalProfit() big.Decimal {
 		return big.ZERO
 	}
 	benchEndPrice, exists := ah.PriceAtIndex(ah.Benchmark, ah.LastIndex())
-	if !exists || benchEndPrice.EQ(big.ZERO) {
+	if !exists {
 		return big.ZERO
 	}
 
@@ -43,9 +43,9 @@ func (ah *AccountHistory) BenchmarkBuyHoldPercentGain() big.Decimal {
 		return big.ZERO
 	}
 	benchEndPrice, exists := ah.PriceAtIndex(ah.Benchmark, ah.LastIndex())
-	if !exists || benchEndPrice.EQ(big.ZERO) {
+	if !exists {
 		return big.ZERO
 	}
 
-	return benchEndPrice.Sub(benchStartPrice).Div(benchStartPrice)
+	return benchEndPrice.Sub(benchStartPrice).Div(benchStartPrice).Mul(big.NewDecimal(100.00))
 }
