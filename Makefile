@@ -7,7 +7,7 @@ bootstrap:
 
 clean:
 	goimports -w $(files)
-	rm cover.out
+	rm -f cover.out
 
 test: clean
 	go test
