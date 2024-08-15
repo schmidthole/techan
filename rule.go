@@ -4,7 +4,7 @@ import "github.com/sdcoffey/big"
 
 // Rule is an interface describing an algorithm by which a set of criteria may be satisfied
 type Rule interface {
-	IsSatisfied(index int, record *TradingRecord) bool
+	IsSatisfied(index int) bool
 }
 
 // And returns a new rule whereby BOTH of the passed-in rules must be satisfied for the rule to be satisfied
@@ -22,8 +22,8 @@ type andRule struct {
 	r2 Rule
 }
 
-func (ar andRule) IsSatisfied(index int, record *TradingRecord) bool {
-	return ar.r1.IsSatisfied(index, record) && ar.r2.IsSatisfied(index, record)
+func (ar andRule) IsSatisfied(index int) bool {
+	return ar.r1.IsSatisfied(index) && ar.r2.IsSatisfied(index)
 }
 
 type orRule struct {
@@ -31,8 +31,8 @@ type orRule struct {
 	r2 Rule
 }
 
-func (or orRule) IsSatisfied(index int, record *TradingRecord) bool {
-	return or.r1.IsSatisfied(index, record) || or.r2.IsSatisfied(index, record)
+func (or orRule) IsSatisfied(index int) bool {
+	return or.r1.IsSatisfied(index) || or.r2.IsSatisfied(index)
 }
 
 // OverIndicatorRule is a rule where the First Indicator must be greater than the Second Indicator to be Satisfied
@@ -42,7 +42,7 @@ type OverIndicatorRule struct {
 }
 
 // IsSatisfied returns true when the First Indicator is greater than the Second Indicator
-func (oir OverIndicatorRule) IsSatisfied(index int, record *TradingRecord) bool {
+func (oir OverIndicatorRule) IsSatisfied(index int) bool {
 	return oir.First.Calculate(index).GT(oir.Second.Calculate(index))
 }
 
@@ -53,7 +53,7 @@ type UnderIndicatorRule struct {
 }
 
 // IsSatisfied returns true when the First Indicator is less than the Second Indicator
-func (uir UnderIndicatorRule) IsSatisfied(index int, record *TradingRecord) bool {
+func (uir UnderIndicatorRule) IsSatisfied(index int) bool {
 	return uir.First.Calculate(index).LT(uir.Second.Calculate(index))
 }
 
@@ -62,7 +62,7 @@ type percentChangeRule struct {
 	percent   big.Decimal
 }
 
-func (pgr percentChangeRule) IsSatisfied(index int, record *TradingRecord) bool {
+func (pgr percentChangeRule) IsSatisfied(index int) bool {
 	return pgr.indicator.Calculate(index).Abs().GT(pgr.percent.Abs())
 }
 

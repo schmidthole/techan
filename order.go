@@ -23,3 +23,8 @@ type Order struct {
 	Amount        big.Decimal
 	ExecutionTime time.Time
 }
+
+// Return the total cost to execute the order.
+func (o *Order) CostBasis() big.Decimal {
+	return o.Amount.Mul(o.Price)
+}

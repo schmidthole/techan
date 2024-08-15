@@ -2,157 +2,127 @@ package techan
 
 import (
 	"testing"
-	"time"
 
 	"github.com/sdcoffey/big"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPosition_NoOrders_IsNew(t *testing.T) {
-	position := new(Position)
+var MOCK_SECURITY = "FAKE"
 
-	assert.True(t, position.IsNew())
+var mockOrder = Order{
+	Security: MOCK_SECURITY,
+	Side:     BUY,
+	Amount:   big.NewFromString("2"),
+	Price:    big.NewFromString("2"),
 }
 
-func TestPosition_NewPosition_IsOpen(t *testing.T) {
-	order := Order{
+func mockPosition() *Position {
+	return NewPosition(&mockOrder)
+}
+
+func TestPosition_NewPosition(t *testing.T) {
+	position := mockPosition()
+
+	assert.Equal(t, position.Side, mockOrder.Side)
+	assert.Equal(t, position.Amount, mockOrder.Amount)
+	decimalEquals(t, 2.0, position.Price)
+	decimalEquals(t, 2.0, position.AvgEntryPrice)
+}
+
+func TestPosition_ExecuteOrder_Add(t *testing.T) {
+	position := mockPosition()
+
+	orderAdd := Order{
 		Side:   BUY,
-		Amount: big.ONE,
-		Price:  big.NewFromString("2"),
+		Amount: big.NewFromString("2"),
+		Price:  big.NewFromString("3"),
 	}
 
-	position := NewPosition(order)
-	assert.True(t, position.IsOpen())
-	assert.False(t, position.IsNew())
+	err := position.ExecuteOrder(&orderAdd)
+	assert.Nil(t, err)
+
+	decimalEquals(t, 4.0, position.Amount)
+	decimalAlmostEquals(t, big.NewDecimal(2.5), position.AvgEntryPrice, 0.2)
+	decimalEquals(t, 3.0, position.Price)
+}
+
+func TestPosition_ExecuteOrder_Sell(t *testing.T) {
+	position := mockPosition()
+
+	orderSell := Order{
+		Side:   SELL,
+		Amount: big.ONE,
+		Price:  big.NewFromString("3"),
+	}
+
+	err := position.ExecuteOrder(&orderSell)
+	assert.Nil(t, err)
+
+	decimalEquals(t, 1.0, position.Amount)
+	decimalEquals(t, 3.0, position.Price)
+	decimalEquals(t, 2.0, position.AvgEntryPrice)
 	assert.False(t, position.IsClosed())
 }
 
-func TestNewPosition_WithBuy_IsLong(t *testing.T) {
-	order := Order{
-		Side:   BUY,
-		Amount: big.ONE,
-		Price:  big.NewFromString("2"),
-	}
+func TestPosition_ExecuteOrder_SellAll_Close(t *testing.T) {
+	position := mockPosition()
 
-	position := NewPosition(order)
-	assert.True(t, position.IsLong())
-}
-
-func TestNewPosition_WithSell_IsShort(t *testing.T) {
-	order := Order{
+	orderSell := Order{
 		Side:   SELL,
-		Amount: big.ONE,
-		Price:  big.NewFromString("2"),
+		Amount: big.NewFromString("2"),
+		Price:  big.NewFromString("3"),
 	}
 
-	position := NewPosition(order)
-	assert.True(t, position.IsShort())
-}
+	err := position.ExecuteOrder(&orderSell)
+	assert.Nil(t, err)
 
-func TestPosition_Enter(t *testing.T) {
-	position := new(Position)
-
-	order := Order{
-		Side:   BUY,
-		Amount: big.ONE,
-		Price:  big.NewFromString("2"),
-	}
-
-	position.Enter(order)
-
-	assert.True(t, position.IsOpen())
-	assert.EqualValues(t, order.Amount, position.EntranceOrder().Amount)
-	assert.EqualValues(t, order.Price, position.EntranceOrder().Price)
-	assert.EqualValues(t, order.ExecutionTime, position.EntranceOrder().ExecutionTime)
-}
-
-func TestPosition_Close(t *testing.T) {
-	position := new(Position)
-
-	entranceOrder := Order{
-		Side:   BUY,
-		Amount: big.ONE,
-		Price:  big.NewFromString("2"),
-	}
-
-	position.Enter(entranceOrder)
-
-	assert.True(t, position.IsOpen())
-	assert.EqualValues(t, entranceOrder.Amount, position.EntranceOrder().Amount)
-	assert.EqualValues(t, entranceOrder.Price, position.EntranceOrder().Price)
-	assert.EqualValues(t, entranceOrder.ExecutionTime, position.EntranceOrder().ExecutionTime)
-
-	exitOrder := Order{
-		Side:          SELL,
-		Amount:        big.ONE,
-		Price:         big.NewFromString("4"),
-		ExecutionTime: time.Now(),
-	}
-
-	position.Exit(exitOrder)
-
+	decimalEquals(t, 0.0, position.Amount)
+	decimalEquals(t, 3.0, position.Price)
+	decimalEquals(t, 2.0, position.AvgEntryPrice)
 	assert.True(t, position.IsClosed())
-
-	assert.EqualValues(t, exitOrder.Amount, position.ExitOrder().Amount)
-	assert.EqualValues(t, exitOrder.Price, position.ExitOrder().Price)
-	assert.EqualValues(t, exitOrder.ExecutionTime, position.ExitOrder().ExecutionTime)
 }
 
-func TestPosition_CostBasis(t *testing.T) {
-	t.Run("When entrance order nil, returns 0", func(t *testing.T) {
-		p := new(Position)
-		assert.EqualValues(t, "0", p.CostBasis().String())
-	})
+func TestPosition_ExecuteOrder_SellTooMany(t *testing.T) {
+	position := mockPosition()
 
-	t.Run("When entracne order not nil, returns cost basis", func(t *testing.T) {
-		p := new(Position)
+	orderSell := Order{
+		Side:   SELL,
+		Amount: big.NewFromString("3"),
+		Price:  big.NewFromString("3"),
+	}
 
-		order := Order{
-			Side:   BUY,
-			Amount: big.ONE,
-			Price:  big.NewFromString("2"),
-		}
+	err := position.ExecuteOrder(&orderSell)
+	assert.NotNil(t, err)
 
-		p.Enter(order)
-
-		assert.EqualValues(t, "2.00", p.CostBasis().FormattedString(2))
-	})
+	decimalEquals(t, 2.0, position.Amount)
+	decimalEquals(t, 2.0, position.Price)
 }
 
-func TestPosition_ExitValue(t *testing.T) {
-	t.Run("when not closed, returns 0", func(t *testing.T) {
-		p := new(Position)
+func TestPosition_ExecuteOrder_TryToSellShort(t *testing.T) {
+	position := mockPosition()
 
-		order := Order{
-			Side:   BUY,
-			Amount: big.ONE,
-			Price:  big.NewFromString("2"),
-		}
+	orderSell := Order{
+		Side:   SELL,
+		Amount: big.NewFromString("3"),
+		Price:  big.NewFromString("3"),
+	}
 
-		p.Enter(order)
+	position.Side = SELL
 
-		assert.EqualValues(t, "0.00", p.ExitValue().FormattedString(2))
-	})
+	err := position.ExecuteOrder(&orderSell)
+	assert.NotNil(t, err)
+}
 
-	t.Run("when closed, returns exit value", func(t *testing.T) {
-		p := new(Position)
+func TestPosition_UpdatePrice(t *testing.T) {
+	position := mockPosition()
 
-		order := Order{
-			Side:   BUY,
-			Amount: big.ONE,
-			Price:  big.NewFromString("2"),
-		}
+	decimalEquals(t, 2.0, position.Price)
+	position.UpdatePrice(big.NewDecimal(11.0))
+	decimalEquals(t, 11.0, position.Price)
+}
 
-		p.Enter(order)
-
-		order = Order{
-			Side:   SELL,
-			Amount: big.ONE,
-			Price:  big.NewFromString("12"),
-		}
-
-		p.Exit(order)
-
-		assert.EqualValues(t, "12.00", p.ExitValue().FormattedString(2))
-	})
+func TestPosition_UnrealizedEquity(t *testing.T) {
+	position := mockPosition()
+	equity := position.UnrealizedEquity()
+	decimalEquals(t, 4.0, equity)
 }

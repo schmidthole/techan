@@ -26,7 +26,7 @@ type crossRule struct {
 	cmp   int
 }
 
-func (cr crossRule) IsSatisfied(index int, record *TradingRecord) bool {
+func (cr crossRule) IsSatisfied(index int) bool {
 	i := index
 
 	if i == 0 {

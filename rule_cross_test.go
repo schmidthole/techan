@@ -13,13 +13,13 @@ func TestCrossUpIndicatorRule(t *testing.T) {
 	rule := NewCrossUpIndicatorRule(dnInd, upInd)
 
 	t.Run("always returns false when index == 0", func(t *testing.T) {
-		assert.False(t, rule.IsSatisfied(0, nil))
+		assert.False(t, rule.IsSatisfied(0))
 	})
 
 	t.Run("Returns true when lower indicator crosses upper indicator", func(t *testing.T) {
-		assert.False(t, rule.IsSatisfied(1, nil))
-		assert.True(t, rule.IsSatisfied(2, nil))
-		assert.True(t, rule.IsSatisfied(3, nil))
+		assert.False(t, rule.IsSatisfied(1))
+		assert.True(t, rule.IsSatisfied(2))
+		assert.True(t, rule.IsSatisfied(3))
 	})
 }
 
@@ -30,12 +30,12 @@ func TestCrossDownIndicatorRule(t *testing.T) {
 	rule := NewCrossDownIndicatorRule(dnInd, upInd)
 
 	t.Run("returns false when index == 0", func(t *testing.T) {
-		assert.False(t, rule.IsSatisfied(0, nil))
+		assert.False(t, rule.IsSatisfied(0))
 	})
 
 	t.Run("returns true when upper indicator crosses below lower indicator", func(t *testing.T) {
-		assert.False(t, rule.IsSatisfied(1, nil))
-		assert.True(t, rule.IsSatisfied(2, nil))
-		assert.True(t, rule.IsSatisfied(3, nil))
+		assert.False(t, rule.IsSatisfied(1))
+		assert.True(t, rule.IsSatisfied(2))
+		assert.True(t, rule.IsSatisfied(3))
 	})
 }
