@@ -40,6 +40,8 @@ func NewNaiveAllocator(maxSinglePositionFraction big.Decimal, maxTotalPositionFr
 	}
 }
 
+// Perform a naive allocation which simply gives an equal portion of allocation to all strategies whose
+// rules are satisfied.
 func (na *NaiveAllocator) Allocate(index int, strategies []Strategy) map[string]big.Decimal {
 	triggers := make([]string, 0)
 	allocations := make(map[string]big.Decimal, 0)
