@@ -11,7 +11,7 @@ import (
 // in an account snapshot.
 type PricingSnapshot struct {
 	Period TimePeriod
-	Prices map[string]big.Decimal
+	Prices Pricing
 }
 
 // The AccountHistory contains a record of point in time account snapshots as well as a list of all

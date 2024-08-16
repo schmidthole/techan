@@ -60,7 +60,7 @@ func (a *Account) Withdraw(cash big.Decimal) error {
 
 // Updates prices for all open positions. If a price is not provided for a given position its price
 // is not updated
-func (a *Account) UpdatePrices(prices map[string]big.Decimal) {
+func (a *Account) UpdatePrices(prices Pricing) {
 	for key := range a.Positions {
 		price, exists := prices[key]
 		if exists {
