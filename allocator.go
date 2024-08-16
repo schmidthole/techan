@@ -6,8 +6,12 @@ import "github.com/sdcoffey/big"
 // A list of strategy structures is passed in to calculate the allocations based on rule analysis or
 // timeseries data. All outputted allocation fractions will add up to 1.0 (big.ONE).
 type Allocator interface {
-	Allocate(index int, strategies []*Strategy) map[string]big.Decimal
+	Allocate(index int, strategies []*Strategy) Allocations
 }
+
+// Allocations are simply a map of securities and their fraction of allocation. All item's fraction
+// in the map should add up to 1.0.
+type Allocations map[string]big.Decimal
 
 // The naive allocator will proportionally allocate to all strategies which are triggered. A maximum
 // position and total allocation can be provided in order to limit single position size and how much
@@ -42,7 +46,7 @@ func NewNaiveAllocator(maxSinglePositionFraction big.Decimal, maxTotalPositionFr
 
 // Perform a naive allocation which simply gives an equal portion of allocation to all strategies whose
 // rules are satisfied.
-func (na *NaiveAllocator) Allocate(index int, strategies []Strategy) map[string]big.Decimal {
+func (na *NaiveAllocator) Allocate(index int, strategies []Strategy) Allocations {
 	triggers := make([]string, 0)
 	allocations := make(map[string]big.Decimal, 0)
 
