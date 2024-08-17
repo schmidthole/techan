@@ -6,7 +6,7 @@ import "github.com/sdcoffey/big"
 // A list of strategy structures is passed in to calculate the allocations based on rule analysis or
 // timeseries data. All outputted allocation fractions will add up to 1.0 (big.ONE).
 type Allocator interface {
-	Allocate(index int, strategies []*Strategy) Allocations
+	Allocate(index int, strategies []Strategy) Allocations
 }
 
 // Allocations are simply a map of securities and their fraction of allocation. All item's fraction
