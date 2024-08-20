@@ -18,6 +18,12 @@ func (fr falseRule) IsSatisfied(index int) bool {
 	return false
 }
 
+type mockRule struct{ values []bool }
+
+func (mr mockRule) IsSatisfied(index int) bool {
+	return mr.values[index]
+}
+
 func TestAndRule(t *testing.T) {
 	t.Run("both truthy", func(t *testing.T) {
 		rule := And(truthRule{}, truthRule{})

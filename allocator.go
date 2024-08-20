@@ -62,7 +62,7 @@ func (na *NaiveAllocator) Allocate(index int, strategies []Strategy) Allocations
 
 	allocationFraction := na.maxTotalPositionFraction.Div(big.NewFromInt(len(triggers)))
 	if allocationFraction.GT(na.maxSinglePositionFraction) {
-		allocationFraction = na.maxTotalPositionFraction
+		allocationFraction = na.maxSinglePositionFraction
 	}
 
 	for _, t := range triggers {
