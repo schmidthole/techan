@@ -34,6 +34,13 @@ func CreateTradePlan(allocations Allocations, pricing Pricing, account *Account)
 		}
 	}
 
+	for security, pos := range account.Positions {
+		_, exists := shareDiffs[security]
+		if !exists {
+			shareDiffs[security] = big.ZERO.Sub(pos.Amount)
+		}
+	}
+
 	sells := []Order{}
 	buys := []Order{}
 
