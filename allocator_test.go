@@ -26,7 +26,7 @@ func TestAllocator_NewNaiveAllocator(t *testing.T) {
 }
 
 func TestAllocator_NaiveAllocatorAllocate(t *testing.T) {
-	alc := NewNaiveAllocator(big.NewDecimal(0.5), big.NewDecimal(1.0))
+	alc := NewNaiveAllocator(big.NewDecimal(0.4), big.NewDecimal(1.0))
 
 	rule1 := mockRule{[]bool{true, true, true, false}}
 	rule2 := mockRule{[]bool{false, true, true, false}}
@@ -40,13 +40,18 @@ func TestAllocator_NaiveAllocatorAllocate(t *testing.T) {
 
 	alc0 := alc.Allocate(0, strats)
 	assert.Equal(t, 1, len(alc0))
-	decimalAlmostEquals(t, big.NewDecimal(0.5), alc0["ONE"], 0.1)
+	decimalAlmostEquals(t, big.NewDecimal(0.4), alc0["ONE"], 0.1)
 
 	alc1 := alc.Allocate(1, strats)
 	assert.Equal(t, 3, len(alc1))
+	decimalAlmostEquals(t, big.NewDecimal(0.33), alc1["ONE"], 0.1)
+	decimalAlmostEquals(t, big.NewDecimal(0.33), alc1["TWO"], 0.1)
+	decimalAlmostEquals(t, big.NewDecimal(0.33), alc1["THREE"], 0.1)
 
 	alc2 := alc.Allocate(2, strats)
 	assert.Equal(t, 2, len(alc2))
+	decimalAlmostEquals(t, big.NewDecimal(0.4), alc2["ONE"], 0.1)
+	decimalAlmostEquals(t, big.NewDecimal(0.4), alc2["TWO"], 0.1)
 
 	alc3 := alc.Allocate(3, strats)
 	assert.Equal(t, 0, len(alc3))
