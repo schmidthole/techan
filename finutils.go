@@ -13,7 +13,3 @@ func CashToShares(assetPrice big.Decimal, cash big.Decimal) big.Decimal {
 
 	return big.NewDecimal(math.Floor(cash.Div(assetPrice).Float()))
 }
-
-func SharesToCash(assetPrice big.Decimal, shares big.Decimal) big.Decimal {
-	return assetPrice.Mul(shares)
-}
