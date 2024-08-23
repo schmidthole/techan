@@ -107,7 +107,7 @@ Putting it all together, we can use all of the components to run a full backtest
 be modelled over time.
 
 ```go
-// we are still using everuyting defined above...
+// we are still using everyting defined above...
 
 backtest := NewBacktest([]Strategy{strategy}, allocator, account)
 history, _ := backtest.Run()
