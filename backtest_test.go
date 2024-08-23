@@ -42,4 +42,5 @@ func Test_BacktestRun(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, hist)
 	assert.Equal(t, 4, bt.tick)
+	assert.Equal(t, 6, len(hist.Snapshots))
 }

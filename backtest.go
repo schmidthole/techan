@@ -35,10 +35,14 @@ func NewBacktest(strategies []Strategy, allocator Allocator, account *Account) *
 
 // Run the backtest from start to finish.
 func (b *Backtest) Run() (*AccountHistory, error) {
-	for b.tick < b.lastTick() {
+	for {
 		err := b.executeTick()
 		if err != nil {
 			return nil, err
+		}
+
+		if b.tick == b.lastTick() {
+			break
 		}
 
 		b.advanceTick()
@@ -74,7 +78,7 @@ func (b *Backtest) executeTick() error {
 }
 
 func (b *Backtest) advanceTick() {
-	if b.tick >= b.strategies[0].Timeseries.LastIndex() {
+	if b.tick >= b.lastTick() {
 		return
 	}
 
