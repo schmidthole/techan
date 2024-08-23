@@ -22,11 +22,13 @@ func NewBacktest(strategies []Strategy, allocator Allocator, account *Account) *
 
 	// setup the initial account state to be one period before all data.
 	// this will serve as a starting point before orders are executed.
-	initialPeriod := strategies[0].Timeseries.Candles[0].Period.Advance(-1)
-	backtest.history.ApplySnapshot(
-		backtest.account.ExportSnapshot(initialPeriod),
-		&PricingSnapshot{Period: initialPeriod, Prices: Pricing{}},
-	)
+	if (len(strategies) > 0) && (len(strategies[0].Timeseries.Candles) > 0) {
+		initialPeriod := strategies[0].Timeseries.Candles[0].Period.Advance(-1)
+		backtest.history.ApplySnapshot(
+			backtest.account.ExportSnapshot(initialPeriod),
+			&PricingSnapshot{Period: initialPeriod, Prices: Pricing{}},
+		)
+	}
 
 	return &backtest
 }
