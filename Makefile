@@ -5,11 +5,13 @@ bootstrap:
 	go install -v golang.org/x/tools/...@latest
 	go install -v honnef.co/go/tools/cmd/staticcheck@latest
 
-clean:
+imports:
 	goimports -w $(files)
+
+clean:
 	rm -f cover.out
 
-test: clean
+test:
 	go test
 
 lint:
@@ -21,6 +23,6 @@ lint:
 bench: clean
 	go test -bench .
 
-coverage:
+coverage: clean
 	go test . -coverprofile=cover.out
 	go tool cover -func=cover.out
