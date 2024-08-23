@@ -1,18 +1,22 @@
-## Techan
-
-**NOTE:** This is my fork of the original techan library found at [https://github.com/sdcoffey/techan](https://github.com/sdcoffey/techan)
+# Techan
 
 TechAn is a **tech**nical **an**alysis library for Go! It provides a suite of tools and frameworks to analyze financial data and make trading decisions.
 
+**NOTE:** This is my fork of the original techan library found at [https://github.com/sdcoffey/techan](https://github.com/sdcoffey/techan).
+My fork preserves the structure of the timeseries and inidicator calculation while completely overhauling the strategy and trade simulation
+to make it more functional for my real use.
+
 ## Features 
 * Basic and advanced technical analysis indicators
-* Profit and trade analysis
 * Strategy building
+* Backtesting and account simulation
 
-### Installation
+## Installation
 ```sh
 $ go get github.com/schmidthole/techan
 ```
+
+## Examples
 
 ### Quickstart
 ```go
@@ -44,32 +48,77 @@ fmt.Println(movingAverage.Calculate(0).FormattedString(2))
 ```
 
 ### Creating trading strategies
+A `Strategy` in Techan is the application of a `Rule` against a particular security/asset. For ease of reference,
+the `Strategy` struct contains the original `Timeseries`, all `Indicators` used to calculate the `Rule`, and the
+rull itself.
+
 ```go
-indicator := techan.NewClosePriceIndicator(series)
+// using the timeseries and indicators from above...
 
-// record trades on this object
-record := techan.NewTradingRecord()
-
-entryConstant := techan.NewConstantIndicator(30)
-exitConstant := techan.NewConstantIndicator(10)
-
-// Is satisfied when the price ema moves above 30 and the current position is new
-entryRule := techan.And(
-	techan.NewCrossUpIndicatorRule(entryConstant, indicator),
-	techan.PositionNewRule{})
-	
-// Is satisfied when the price ema moves below 10 and the current position is open
-exitRule := techan.And(
-	techan.NewCrossDownIndicatorRule(indicator, exitConstant),
-	techan.PositionOpenRule{})
-
-strategy := techan.RuleStrategy{
-	UnstablePeriod: 10, // Period before which ShouldEnter and ShouldExit will always return false
-	EntryRule:      entryRule,
-	ExitRule:       exitRule,
+// we simply create a rule that is satisfied if the price is above the moving average.
+rule := OverIndicatorRule {
+    First: movingAverage,
+    Second: closePrices
 }
 
-strategy.ShouldEnter(0, record) // returns false
+strategy := Strategy{
+    Security: "TEST",
+    Timeseries: series,
+    Indicators: map[string]Indicator{
+        "ema10": movingAverage,
+    },
+    Rule: rule,
+}
+```
+
+Strategies against individual securities/assets can be combined into a more comprehensive strategy using an 
+`Allocator`. An allocator is simply an interface that accepts a list of strategies and outputs a portfolio
+allocation. This can be as simple or as complex as needed.
+
+```go
+// again using the strategy defined above...
+
+// we create a naive allocator which allows a single position to be 50% of a portfolio and 100% of a portfoliio
+// to be allocated.
+allocator := NewNaiveAllocator(big.NewDecimal(0.5), big.NewDecimal(1.0))
+
+allocations := allocator.Allocate(0, []Strategy{strategy})
+```
+
+Using the outputted portfolio `Allocations`, we can then create a `TradePlan` by combining information from an 
+`Account`. The `TradePlan` will use the current security prices, open positions in the account, and the allocations 
+provided to identify the orders which can be placed to achieve the desired allocation. This can be used to calculate
+orders to execute with a broker based on the strategy results.
+
+```go
+account := NewAccount()
+account.Deposit(big.NewDecimal(10000.00))
+
+// create pricing data from timeseries candles above.
+pricing := Pricing{
+    "ONE": big.NewDecimal(2.0)
+}
+
+tradePlan, _ := CreateTradePlan(allocations, pricing, account)
+```
+
+Putting it all together, we can use all of the components to run a full backtest of a strategy against the historical
+`Timeseries` data. Combining multiple `Strategy` objects along with the `Allocator` allow for complex strategies to
+be modelled over time.
+
+```go
+// we are still using everuyting defined above...
+
+backtest := NewBacktest([]Strategy{strategy}, allocator, account)
+history, _ := backtest.Run()
+```
+
+Running a backtest will about an `AccountHistory` object, which contains all of the relevant backtest 
+snapshots/results over time. The account history can be used to perform analysis of the strategy's 
+performance metrics.
+
+```go
+profit := history.TotalProfit()
 ```
 
 ### Credits
