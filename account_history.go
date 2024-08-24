@@ -17,7 +17,6 @@ type PricingSnapshot struct {
 // The AccountHistory contains a record of point in time account snapshots as well as a list of all
 // of the Securities tracked by the account over time.
 type AccountHistory struct {
-	Benchmark  string
 	Securities []string
 	Prices     []*PricingSnapshot
 	Snapshots  []*AccountSnapshot
@@ -56,4 +55,14 @@ func (ah *AccountHistory) LastIndex() int {
 func (ah *AccountHistory) PriceAtIndex(security string, index int) (big.Decimal, bool) {
 	price, exists := ah.Prices[index].Prices[security]
 	return price, exists
+}
+
+// Derive an Indicator from the account history equity.
+func (ah *AccountHistory) AccountEquityAsIndicator() Indicator {
+	equities := []float64{}
+	for _, e := range ah.Snapshots {
+		equities = append(equities, e.Equity.Float())
+	}
+
+	return NewFixedIndicator(equities...)
 }
