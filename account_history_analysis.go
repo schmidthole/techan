@@ -1,6 +1,8 @@
 package techan
 
 import (
+	"math"
+
 	"github.com/sdcoffey/big"
 )
 
@@ -21,31 +23,23 @@ func (ah *AccountHistory) PercentGain() big.Decimal {
 	return ah.TotalProfit().Div(ah.Snapshots[0].Equity).Mul(big.NewDecimal(100.00))
 }
 
-// Get the total profit for a buy and hold of the benchmark security.
-func (ah *AccountHistory) BenchmarkBuyHoldTotalProfit() big.Decimal {
-	benchStartPrice, exists := ah.PriceAtIndex(ah.Benchmark, 0)
-	if !exists || benchStartPrice.EQ(big.ZERO) {
-		return big.ZERO
-	}
-	benchEndPrice, exists := ah.PriceAtIndex(ah.Benchmark, ah.LastIndex())
-	if !exists {
-		return big.ZERO
-	}
+// Get the annualized return of the account equity
+func (ah *AccountHistory) AnnualizedReturn() big.Decimal {
+	startTimestamp := ah.Snapshots[0].Period.Start
+	endTimestamp := ah.Snapshots[ah.LastIndex()].Period.Start
 
-	benchChange := benchEndPrice.Sub(benchStartPrice)
+	days := big.NewDecimal(endTimestamp.Sub(startTimestamp).Hours()).Div(big.NewDecimal(24.0))
+	years := days.Div(big.NewDecimal(365.00))
 
-	return ah.Snapshots[0].Equity.Mul(benchChange)
-}
+	startEquity := ah.Snapshots[0].Equity
+	endEquity := ah.Snapshots[ah.LastIndex()].Equity
 
-func (ah *AccountHistory) BenchmarkBuyHoldPercentGain() big.Decimal {
-	benchStartPrice, exists := ah.PriceAtIndex(ah.Benchmark, 0)
-	if !exists || benchStartPrice.EQ(big.ZERO) {
-		return big.ZERO
-	}
-	benchEndPrice, exists := ah.PriceAtIndex(ah.Benchmark, ah.LastIndex())
-	if !exists {
+	if years.IsZero() || startEquity.IsZero() {
 		return big.ZERO
 	}
 
-	return benchEndPrice.Sub(benchStartPrice).Div(benchStartPrice).Mul(big.NewDecimal(100.00))
+	base := endEquity.Sub(startEquity).Div(startEquity).Add(big.ONE).Float()
+	exponent := big.ONE.Div(years).Float()
+
+	return big.NewDecimal(math.Pow(base, exponent)).Sub(big.ONE).Mul(big.NewDecimal(100.00))
 }
