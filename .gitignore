@@ -4,3 +4,4 @@ vendor
 bin/*
 coverage.txt
 cover.out
+debug.*
