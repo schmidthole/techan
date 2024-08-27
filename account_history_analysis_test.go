@@ -94,3 +94,52 @@ func TestAccountHistory_AnnualizedReturn(t *testing.T) {
 		t.Errorf("annualized return out of bounds. expected %v, got %v", 50.00, arFl)
 	}
 }
+
+func TestAccountHistory_AnnualizedVolatility(t *testing.T) {
+	tests := []struct {
+		name     string
+		equities []float64
+		expected float64
+	}{
+		{
+			name:     "basic",
+			equities: []float64{100.0, 105.0, 102.0, 107.0},
+			expected: 11.36,
+		},
+		{
+			name:     "no variance",
+			equities: []float64{100.0, 100.0, 100.0, 100.0},
+			expected: 0.0,
+		},
+		{
+			name:     "single",
+			equities: []float64{100.0},
+			expected: 0.0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ah := NewAccountHistory()
+			now := time.Now()
+
+			for i, e := range tt.equities {
+				period := NewTimePeriod(now.Add(time.Hour*24*time.Duration(i)), time.Hour*24)
+				snap := AccountSnapshot{Period: period, Equity: big.NewDecimal(e)}
+				pricing := PricingSnapshot{Period: period}
+
+				ah.ApplySnapshot(&snap, &pricing)
+			}
+
+			aVol := ah.AnnualizedVolatility()
+
+			if tt.expected == 0.0 {
+				if !aVol.Zero() {
+					t.Errorf("result should be 0.0, but got %v", aVol.String())
+				}
+			} else {
+				decimalAlmostEquals(t, big.NewDecimal(tt.expected), aVol, 0.1)
+			}
+		})
+	}
+}

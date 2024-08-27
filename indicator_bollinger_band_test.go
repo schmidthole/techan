@@ -9,7 +9,13 @@ import (
 )
 
 func decimalAlmostEquals(t *testing.T, expected, actual big.Decimal, epsilon float64) {
-	assert.InEpsilon(t, expected.Float(), actual.Float(), epsilon)
+	assert.InEpsilon(
+		t,
+		expected.Float(),
+		actual.Float(),
+		epsilon,
+		"decimal not within epsilon, want: %v, got: %v", expected.Float(), actual.Float(),
+	)
 }
 
 // number data from https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_bands
