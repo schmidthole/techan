@@ -75,3 +75,30 @@ func TestAccountHistory_PriceAtIndex(t *testing.T) {
 	_, exists = hist.PriceAtIndex("NOT_THERE", 1)
 	assert.False(t, exists)
 }
+
+func TestAccountHistory_AccountEquityAsIndicator(t *testing.T) {
+	period := NewTimePeriod(time.Now(), time.Hour*24)
+	period2 := NewTimePeriod(time.Now().AddDate(1, 0, 0), time.Hour*24)
+
+	prices1 := map[string]big.Decimal{
+		MOCK_SECURITY: big.NewDecimal(1.0),
+	}
+	prices2 := map[string]big.Decimal{
+		MOCK_SECURITY: big.NewDecimal(2.0),
+	}
+
+	hist := NewAccountHistory()
+
+	acctSnap := AccountSnapshot{Period: period, Equity: big.NewDecimal(1.0)}
+	pricingSnap := PricingSnapshot{Period: period, Prices: prices1}
+	hist.ApplySnapshot(&acctSnap, &pricingSnap)
+
+	acctSnap2 := AccountSnapshot{Period: period2, Equity: big.NewDecimal(2.0)}
+	pricingSnap2 := PricingSnapshot{Period: period2, Prices: prices2}
+	hist.ApplySnapshot(&acctSnap2, &pricingSnap2)
+
+	ind := hist.AccountEquityAsIndicator()
+
+	decimalEquals(t, 1.0, ind.Calculate(0))
+	decimalEquals(t, 2.0, ind.Calculate(1))
+}
