@@ -21,8 +21,8 @@ func NewBinaryFrequencyIndicator(indicators []Indicator, window int, threshold f
 }
 
 func (s binaryFrequencyIndicator) Calculate(index int) big.Decimal {
-	calcWindow := s.window
-	if index < s.window {
+	calcWindow := s.window - 1
+	if index < s.window+1 {
 		calcWindow = index
 	}
 
