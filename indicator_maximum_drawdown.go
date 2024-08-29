@@ -10,23 +10,22 @@ type maximumDrawdownIndicator struct {
 // to find the difference between almost absolute peaks and valleys over time.
 //
 // Each "peak" and "valley" are paired to introduce a single "drawdown"
-func NewMaximumDrawdownIndicator(timeseries *TimeSeries, window int) Indicator {
-	closes := NewClosePriceIndicator(timeseries)
-	extrema := NewLocalExtremaIndicator(timeseries, window)
+func NewMaximumDrawdownIndicator(indicator Indicator, window int, length int) Indicator {
+	extrema := NewLocalExtremaIndicator(indicator, window, length)
 
 	drawdowns := []big.Decimal{}
 	maxDrawdown := big.ZERO
 	lastPeak := big.ZERO
 	inDrawdown := false
 
-	for i := 0; i < timeseries.LastIndex(); i++ {
+	for i := 0; i < length; i++ {
 		isExtrema := extrema.Calculate(i)
 
 		if isExtrema.GT(big.ZERO) {
-			lastPeak = closes.Calculate(i)
+			lastPeak = indicator.Calculate(i)
 			inDrawdown = true
 		} else if isExtrema.LT(big.ZERO) && inDrawdown {
-			drawdown := lastPeak.Sub(closes.Calculate(i))
+			drawdown := lastPeak.Sub(indicator.Calculate(i))
 
 			if drawdown.GT(maxDrawdown) {
 				maxDrawdown = drawdown

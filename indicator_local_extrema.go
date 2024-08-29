@@ -12,25 +12,33 @@ type localExtremaIndicator struct {
 //
 // This indicator can be useful for identification of "boxes" or "bases" in an asset/security
 // where it is not critical that the extrema be identified immediately.
-func NewLocalExtremaIndicator(timeseries *TimeSeries, window int) Indicator {
-	closes := NewClosePriceIndicator(timeseries)
-	roc := NewRateOfChangeIndicator(closes, window)
+//
+// Right now, the entire extrema slice is computed during creation, so we need the total length
+// of data to compute as a param. This is required because for a given index to be considered
+// a local extrema, we potentially need to look both in front of and behind it.
+func NewLocalExtremaIndicator(indicator Indicator, window int, length int) Indicator {
+	roc := NewRateOfChangeIndicator(indicator, window)
 
-	extrema := make([]int, timeseries.LastIndex()+1)
+	extrema := make([]int, length)
 	for i := range extrema {
 		extrema[i] = 0
 	}
 
-	for i := 0; i <= timeseries.LastIndex(); i++ {
+	calcWindow := window - 1
+	for i := calcWindow; i < length; i++ {
 		roc0 := roc.Calculate(i)
 		roc1 := roc.Calculate(i - 1)
 
-		startIndex := i - window
+		startIndex := i - calcWindow
+		if startIndex < 0 {
+			startIndex = 0
+		}
+
 		if roc0.GT(big.ZERO) && roc1.LTE(big.ZERO) {
-			minimaIndex := findMinIndexInWindow(closes, startIndex, i)
+			minimaIndex := findMinIndexInWindow(indicator, startIndex, i)
 			extrema[minimaIndex] = -1
 		} else if roc0.LTE(big.ZERO) && roc1.GT(big.ZERO) {
-			maximaIndex := findMaxIndexInWindow(closes, startIndex, i)
+			maximaIndex := findMaxIndexInWindow(indicator, startIndex, i)
 			extrema[maximaIndex] = 1
 		}
 	}
