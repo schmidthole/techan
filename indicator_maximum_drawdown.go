@@ -24,14 +24,16 @@ func NewMaximumDrawdownIndicator(indicator Indicator, window int, length int) In
 		if isExtrema.GT(big.ZERO) {
 			lastPeak = indicator.Calculate(i)
 			inDrawdown = true
-		} else if isExtrema.LT(big.ZERO) && inDrawdown {
-			drawdown := lastPeak.Sub(indicator.Calculate(i))
+		} else if inDrawdown {
+			drawdown := lastPeak.Sub(indicator.Calculate(i)).Div(lastPeak).Mul(big.NewDecimal(100.00))
 
 			if drawdown.GT(maxDrawdown) {
 				maxDrawdown = drawdown
 			}
 
-			inDrawdown = false
+			if isExtrema.LT(big.ZERO) {
+				inDrawdown = false
+			}
 		}
 
 		drawdowns = append(drawdowns, maxDrawdown)
