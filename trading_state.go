@@ -6,7 +6,7 @@ type TradingState int
 
 // Possible trading states
 const (
-	OPEN int = iota
+	OPEN TradingState = iota
 	CLOSED
 	HALTED
 )
