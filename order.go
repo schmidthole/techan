@@ -42,7 +42,7 @@ type Order struct {
 	Side          OrderSide
 	Security      string
 	Price         big.Decimal
-	Type          string
+	Type          OrderType
 	Amount        big.Decimal
 	TimeInForce   TimeInForce
 	ExecutionTime time.Time
