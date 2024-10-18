@@ -7,6 +7,7 @@ import "github.com/sdcoffey/big"
 // timeseries data. All outputted allocation fractions will add up to 1.0 (big.ONE).
 type Allocator interface {
 	Allocate(index int, strategies []Strategy) Allocations
+	AllocateWithAccount(index int, strategies []Strategy, account *Account) Allocations
 }
 
 // Allocations are simply a map of securities and their fraction of allocation. All item's fraction
@@ -67,6 +68,50 @@ func (na *NaiveAllocator) Allocate(index int, strategies []Strategy) Allocations
 
 	for _, t := range triggers {
 		allocations[t] = allocationFraction
+	}
+
+	return allocations
+}
+
+// Perform a naive allocation, but take into account which positions are currently open
+// with an account. This will also only include an allocation for a new position if the
+// strategy has an entry on this index. This avoids allocating a trade at a sub-optimal
+// entrypoint.
+func (na *NaiveAllocator) AllocateWithAccount(index int, strategies []Strategy, account *Account) Allocations {
+	if index == 0 {
+		return na.Allocate(index, strategies)
+	}
+
+	triggers := make([]string, 0)
+	entries := make(map[string]bool, 0)
+	allocations := make(map[string]big.Decimal, 0)
+
+	for _, s := range strategies {
+		if s.Rule.IsSatisfied(index) {
+			triggers = append(triggers, s.Security)
+
+			if s.Rule.IsSatisfied(index - 1) {
+				entries[s.Security] = true
+			}
+		}
+	}
+
+	if len(triggers) == 0 {
+		return allocations
+	}
+
+	allocationFraction := na.maxTotalPositionFraction.Div(big.NewFromInt(len(triggers)))
+	if allocationFraction.GT(na.maxSinglePositionFraction) {
+		allocationFraction = na.maxSinglePositionFraction
+	}
+
+	for _, t := range triggers {
+		_, hasPosition := account.OpenPosition(t)
+		_, isEntry := entries[t]
+
+		if hasPosition || isEntry {
+			allocations[t] = allocationFraction
+		}
 	}
 
 	return allocations
