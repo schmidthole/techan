@@ -37,6 +37,16 @@ const (
 	IOC TimeInForce = "IOC"
 )
 
+// OrderStatus defines the state of an order with a broker
+type OrderStatus string
+
+const (
+	PENDING   OrderStatus = "Pending"
+	FILLED    OrderStatus = "Filled"
+	CANCELLED OrderStatus = "Cancelled"
+	OTHER     OrderStatus = "Other"
+)
+
 // Order represents a trade execution (buy or sell) with associated metadata.
 type Order struct {
 	Side          OrderSide
@@ -47,7 +57,7 @@ type Order struct {
 	Amount        big.Decimal
 	TimeInForce   TimeInForce
 	ExecutionTime time.Time
-	Status        string
+	Status        OrderStatus
 }
 
 // Return the total cost to execute the order.
