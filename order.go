@@ -43,9 +43,11 @@ type Order struct {
 	Security      string
 	Price         big.Decimal
 	Type          OrderType
+	FilledAmount  big.Decimal
 	Amount        big.Decimal
 	TimeInForce   TimeInForce
 	ExecutionTime time.Time
+	Status        string
 }
 
 // Return the total cost to execute the order.
