@@ -51,6 +51,7 @@ const (
 type Order struct {
 	Side          OrderSide
 	Security      string
+	ContractID    int
 	Price         big.Decimal
 	Type          OrderType
 	FilledAmount  big.Decimal
