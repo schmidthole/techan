@@ -49,6 +49,7 @@ const (
 
 // Order represents a trade execution (buy or sell) with associated metadata.
 type Order struct {
+	ID            string
 	Side          OrderSide
 	Security      string
 	ContractID    int
