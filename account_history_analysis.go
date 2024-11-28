@@ -6,6 +6,13 @@ import (
 	"github.com/sdcoffey/big"
 )
 
+// Measures the return for a given period (such as a year, month etc) for analysis.
+type ReturnPeriod struct {
+	Period      TimePeriod
+	PercentGain big.Decimal
+	TotalProfit big.Decimal
+}
+
 // Total profit of the account history.
 func (ah *AccountHistory) TotalProfit() big.Decimal {
 	endEquity := ah.Snapshots[ah.LastIndex()].Equity
@@ -21,6 +28,48 @@ func (ah *AccountHistory) PercentGain() big.Decimal {
 	}
 
 	return ah.TotalProfit().Div(ah.Snapshots[0].Equity).Mul(big.NewDecimal(100.00))
+}
+
+// Returns broken down by month
+func (ah *AccountHistory) MonthlyPercentGains() []ReturnPeriod {
+	returns := []ReturnPeriod{}
+
+	if len(ah.Snapshots) < 2 {
+		return returns
+	}
+
+	startIndex := 0
+
+	for i := 1; i < ah.LastIndex(); i++ {
+		startPeriod := ah.Snapshots[startIndex].Period.Start
+		startEquity := ah.Snapshots[startIndex].Equity
+
+		currentPeriod := ah.Snapshots[i].Period.End
+		if startPeriod.Month() != currentPeriod.Month() {
+			endPeriod := ah.Snapshots[i-1].Period.End
+			endEquity := ah.Snapshots[i-1].Equity
+
+			period := TimePeriod{Start: startPeriod, End: endPeriod}
+			profit := endEquity.Sub(startEquity)
+
+			percentGain := big.ZERO
+
+			if !startEquity.Zero() {
+				percentGain = profit.Div(startEquity)
+			}
+
+			monthReturn := ReturnPeriod{
+				Period:      period,
+				TotalProfit: profit,
+				PercentGain: percentGain,
+			}
+			returns = append(returns, monthReturn)
+
+			startIndex = i
+		}
+	}
+
+	return returns
 }
 
 // Get the annualized return of the account equity
