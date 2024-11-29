@@ -143,3 +143,87 @@ func TestAccountHistory_AnnualizedVolatility(t *testing.T) {
 		})
 	}
 }
+
+func TestAccountHistory_MonthlyPercentGains(t *testing.T) {
+	tests := []struct {
+		name     string
+		periods  []time.Time
+		equities []float64
+		expected []ReturnPeriod
+	}{
+		{
+			name:     "zero days",
+			periods:  []time.Time{},
+			equities: []float64{},
+			expected: []ReturnPeriod{},
+		},
+		{
+			name:     "one day",
+			periods:  []time.Time{time.Now()},
+			equities: []float64{1.0},
+			expected: []ReturnPeriod{},
+		},
+		{
+			name: "two days same month",
+			periods: []time.Time{
+				time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC),
+				time.Date(2020, time.January, 31, 0, 0, 0, 0, time.UTC),
+			},
+			equities: []float64{1.0, 2.0},
+			expected: []ReturnPeriod{
+				{
+					Period:      TimePeriod{},
+					PercentGain: big.NewDecimal(100.00),
+					TotalProfit: big.NewDecimal(1.0),
+				},
+			},
+		},
+		{
+			name: "two periods",
+			periods: []time.Time{
+				time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC),
+				time.Date(2020, time.January, 31, 0, 0, 0, 0, time.UTC),
+				time.Date(2020, time.February, 1, 0, 0, 0, 0, time.UTC),
+				time.Date(2020, time.February, 28, 0, 0, 0, 0, time.UTC),
+			},
+			equities: []float64{1.0, 2.0, 2.0, 4.0},
+			expected: []ReturnPeriod{
+				{
+					Period:      TimePeriod{},
+					PercentGain: big.NewDecimal(100.00),
+					TotalProfit: big.NewDecimal(1.0),
+				},
+				{
+					Period:      TimePeriod{},
+					PercentGain: big.NewDecimal(100.00),
+					TotalProfit: big.NewDecimal(2.0),
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ah := NewAccountHistory()
+
+			for i, e := range tt.equities {
+				period := NewTimePeriod(tt.periods[i], time.Hour*24)
+				snap := AccountSnapshot{Period: period, Equity: big.NewDecimal(e)}
+				pricing := PricingSnapshot{Period: period}
+
+				ah.ApplySnapshot(&snap, &pricing)
+			}
+
+			monthlyReturns := ah.MonthlyPercentGains()
+
+			if len(monthlyReturns) != len(tt.expected) {
+				t.Errorf("expected %v monthly returns, got %v", len(tt.expected), len(monthlyReturns))
+			}
+
+			for i, r := range monthlyReturns {
+				decimalAlmostEquals(t, tt.expected[i].TotalProfit, r.TotalProfit, 1.0)
+				decimalAlmostEquals(t, tt.expected[i].PercentGain, r.PercentGain, 1.0)
+			}
+		})
+	}
+}

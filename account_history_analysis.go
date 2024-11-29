@@ -32,30 +32,33 @@ func (ah *AccountHistory) PercentGain() big.Decimal {
 
 // Returns broken down by month
 func (ah *AccountHistory) MonthlyPercentGains() []ReturnPeriod {
-	returns := []ReturnPeriod{}
+	monthlyReturns := []ReturnPeriod{}
 
 	if len(ah.Snapshots) < 2 {
-		return returns
+		return monthlyReturns
 	}
 
 	startIndex := 0
 
-	for i := 1; i < ah.LastIndex(); i++ {
+	lastIndex := ah.LastIndex()
+	for i := 0; i <= lastIndex; i++ {
 		startPeriod := ah.Snapshots[startIndex].Period.Start
 		startEquity := ah.Snapshots[startIndex].Equity
 
-		currentPeriod := ah.Snapshots[i].Period.End
+		currentPeriod := ah.Snapshots[i].Period.Start
 		if startPeriod.Month() != currentPeriod.Month() {
-			endPeriod := ah.Snapshots[i-1].Period.End
+			endPeriod := ah.Snapshots[i-1].Period.Start
 			endEquity := ah.Snapshots[i-1].Equity
 
 			period := TimePeriod{Start: startPeriod, End: endPeriod}
 			profit := endEquity.Sub(startEquity)
 
-			percentGain := big.ZERO
+			var percentGain big.Decimal
 
 			if !startEquity.Zero() {
 				percentGain = profit.Div(startEquity)
+			} else {
+				percentGain = big.ZERO
 			}
 
 			monthReturn := ReturnPeriod{
@@ -63,13 +66,34 @@ func (ah *AccountHistory) MonthlyPercentGains() []ReturnPeriod {
 				TotalProfit: profit,
 				PercentGain: percentGain,
 			}
-			returns = append(returns, monthReturn)
+			monthlyReturns = append(monthlyReturns, monthReturn)
 
 			startIndex = i
+		} else if i == lastIndex {
+			endPeriod := ah.Snapshots[i].Period.Start
+			endEquity := ah.Snapshots[i].Equity
+
+			period := TimePeriod{Start: startPeriod, End: endPeriod}
+			profit := endEquity.Sub(startEquity)
+
+			var percentGain big.Decimal
+
+			if !startEquity.Zero() {
+				percentGain = profit.Div(startEquity)
+			} else {
+				percentGain = big.ZERO
+			}
+
+			monthReturn := ReturnPeriod{
+				Period:      period,
+				TotalProfit: profit,
+				PercentGain: percentGain,
+			}
+			monthlyReturns = append(monthlyReturns, monthReturn)
 		}
 	}
 
-	return returns
+	return monthlyReturns
 }
 
 // Get the annualized return of the account equity
