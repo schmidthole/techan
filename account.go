@@ -16,10 +16,10 @@ type Account struct {
 
 // An AccountSnapshot provides the point in time state of an account and its positions.
 type AccountSnapshot struct {
-	Period    TimePeriod
-	Equity    big.Decimal
-	Cash      big.Decimal
-	Positions []*PositionSnapshot
+	Period    TimePeriod          `yaml:"period"`
+	Equity    big.Decimal         `yaml:"equity"`
+	Cash      big.Decimal         `yaml:"cash"`
+	Positions []*PositionSnapshot `yaml:"positions"`
 }
 
 // NewAccount returns a new Account

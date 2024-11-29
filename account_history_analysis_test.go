@@ -1,6 +1,7 @@
 package techan
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -226,4 +227,70 @@ func TestAccountHistory_MonthlyPercentGains(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestAccountHistory_ExportSnapshotsYaml(t *testing.T) {
+	period := NewTimePeriod(time.Now(), time.Hour*24)
+	acctSnap := AccountSnapshot{Period: period, Equity: big.NewDecimal(1.0)}
+	pricingSnap := PricingSnapshot{Period: period}
+
+	period2 := NewTimePeriod(time.Now().Add(time.Hour*24), time.Hour*24)
+	acctSnap2 := AccountSnapshot{Period: period2, Equity: big.NewDecimal(2.0)}
+	pricingSnap2 := PricingSnapshot{Period: period2}
+
+	ah := NewAccountHistory()
+	ah.ApplySnapshot(&acctSnap, &pricingSnap)
+	ah.ApplySnapshot(&acctSnap2, &pricingSnap2)
+
+	filepath := "snapshots.yaml"
+	err := ah.ExportSnapshotsYaml(filepath)
+	if err != nil {
+		t.Errorf("failed to export snapshots to yaml: %v", err)
+	}
+
+	os.Remove(filepath)
+}
+
+func TestAccountHistory_ExportAnalysisSummaryYaml(t *testing.T) {
+	period := NewTimePeriod(time.Now(), time.Hour*24)
+	acctSnap := AccountSnapshot{Period: period, Equity: big.NewDecimal(1.0)}
+	pricingSnap := PricingSnapshot{Period: period}
+
+	period2 := NewTimePeriod(time.Now().Add(time.Hour*24*365*2), time.Hour*24)
+	acctSnap2 := AccountSnapshot{Period: period2, Equity: big.NewDecimal(2.0)}
+	pricingSnap2 := PricingSnapshot{Period: period2}
+
+	ah := NewAccountHistory()
+	ah.ApplySnapshot(&acctSnap, &pricingSnap)
+	ah.ApplySnapshot(&acctSnap2, &pricingSnap2)
+
+	filepath := "analysis_summary.yaml"
+	err := ah.ExportAnalysisSummaryYaml(filepath)
+	if err != nil {
+		t.Errorf("failed to export analysis summary to yaml: %v", err)
+	}
+
+	os.Remove(filepath)
+}
+
+func TestAccountHistory_ExportMonthlyGainsYaml(t *testing.T) {
+	period := NewTimePeriod(time.Now(), time.Hour*24)
+	acctSnap := AccountSnapshot{Period: period, Equity: big.NewDecimal(1.0)}
+	pricingSnap := PricingSnapshot{Period: period}
+
+	period2 := NewTimePeriod(time.Now().Add(time.Hour*24*30), time.Hour*24)
+	acctSnap2 := AccountSnapshot{Period: period2, Equity: big.NewDecimal(2.0)}
+	pricingSnap2 := PricingSnapshot{Period: period2}
+
+	ah := NewAccountHistory()
+	ah.ApplySnapshot(&acctSnap, &pricingSnap)
+	ah.ApplySnapshot(&acctSnap2, &pricingSnap2)
+
+	filepath := "monthly_gains.yaml"
+	err := ah.ExportMonthlyGainsYaml(filepath)
+	if err != nil {
+		t.Errorf("failed to export monthly gains to yaml: %v", err)
+	}
+
+	os.Remove(filepath)
 }

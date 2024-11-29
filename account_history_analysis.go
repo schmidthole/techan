@@ -2,15 +2,17 @@ package techan
 
 import (
 	"math"
+	"os"
 
 	"github.com/sdcoffey/big"
+	"gopkg.in/yaml.v3"
 )
 
 // Measures the return for a given period (such as a year, month etc) for analysis.
 type ReturnPeriod struct {
-	Period      TimePeriod
-	PercentGain big.Decimal
-	TotalProfit big.Decimal
+	Period      TimePeriod  `yaml:"period"`
+	PercentGain big.Decimal `yaml:"percent_gain"`
+	TotalProfit big.Decimal `yaml:"total_profit"`
 }
 
 // Total profit of the account history.
@@ -150,4 +152,72 @@ func (ah *AccountHistory) AnnualizedVolatility() big.Decimal {
 	dailyVolatility := variance.Sqrt()
 
 	return dailyVolatility.Mul(big.NewFromInt(252))
+}
+
+// Exports the account snapshots in a readable yaml format for viewing and analysis.
+func (ah *AccountHistory) ExportSnapshotsYaml(filepath string) error {
+	file, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := yaml.NewEncoder(file)
+	defer encoder.Close()
+
+	for _, snapshot := range ah.Snapshots {
+		err = encoder.Encode(snapshot)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Exports an analysis summary to yaml for viewing and analysis.
+func (ah *AccountHistory) ExportAnalysisSummaryYaml(filepath string) error {
+	file, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := yaml.NewEncoder(file)
+	defer encoder.Close()
+
+	analysis := map[string]interface{}{
+		"start":             ah.Snapshots[0].Period.Start,
+		"end":               ah.Snapshots[ah.LastIndex()].Period.Start,
+		"total_profit":      ah.TotalProfit(),
+		"percent_gain":      ah.PercentGain(),
+		"annualized_return": ah.AnnualizedReturn(),
+	}
+
+	err = encoder.Encode(analysis)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Exports the monthly gains to yaml for viewing and analysis.
+func (ah *AccountHistory) ExportMonthlyGainsYaml(filepath string) error {
+	file, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := yaml.NewEncoder(file)
+	defer encoder.Close()
+
+	monthlyReturns := ah.MonthlyPercentGains()
+	err = encoder.Encode(monthlyReturns)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

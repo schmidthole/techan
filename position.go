@@ -17,11 +17,11 @@ type Position struct {
 
 // Snapshot of position used to document account history
 type PositionSnapshot struct {
-	Security       string
-	Side           OrderSide
-	Amount         big.Decimal
-	Price          big.Decimal
-	UnrealizedGain big.Decimal
+	Security       string      `yaml:"security"`
+	Side           OrderSide   `yaml:"side"`
+	Amount         big.Decimal `yaml:"amount"`
+	Price          big.Decimal `yaml:"price"`
+	UnrealizedGain big.Decimal `yaml:"unrealized_gain"`
 }
 
 // NewPosition returns a new Position with the passed-in order as the open order

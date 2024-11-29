@@ -8,8 +8,8 @@ import (
 
 // TimePeriod is a simple struct that describes a period of time with a Start and End time
 type TimePeriod struct {
-	Start time.Time
-	End   time.Time
+	Start time.Time `yaml:"start"`
+	End   time.Time `yaml:"end"`
 }
 
 // Constants representing basic, human-readable and writable date formats
