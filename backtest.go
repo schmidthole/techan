@@ -57,6 +57,7 @@ func (b *Backtest) executeTick() error {
 		prices[strat.Security] = strat.Timeseries.Candles[b.tick].ClosePrice
 	}
 
+	b.account.UpdatePrices(prices)
 	allocations := b.allocator.Allocate(b.tick, b.strategies)
 
 	tradePlan, err := CreateTradePlan(allocations, prices, b.account)
