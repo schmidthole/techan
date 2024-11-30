@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 )
 
 func TestAccountHistory_TotalProfit(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/schmidthole/big"
 	"github.com/schmidthole/techan"
-	"github.com/sdcoffey/big"
 )
 
 // BasicEma is an example of how to create a basic Exponential moving average indicator

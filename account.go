@@ -3,7 +3,7 @@ package techan
 import (
 	"fmt"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 )
 
 // Account is an object describing a trading account, including trading record, open positions

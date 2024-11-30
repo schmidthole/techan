@@ -3,7 +3,7 @@ package techan
 import (
 	"math"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 )
 
 func CashToShares(assetPrice big.Decimal, cash big.Decimal) big.Decimal {

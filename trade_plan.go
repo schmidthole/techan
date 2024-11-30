@@ -3,7 +3,7 @@ package techan
 import (
 	"fmt"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 )
 
 // A trade plan is a list of orders to be executed in the order they appear.

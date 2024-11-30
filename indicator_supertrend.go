@@ -1,7 +1,7 @@
 package techan
 
 import (
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 )
 
 type supertrendIndicator struct {

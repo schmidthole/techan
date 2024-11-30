@@ -3,7 +3,7 @@ package techan
 import (
 	"fmt"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 )
 
 // Positions holds iformation about an open position

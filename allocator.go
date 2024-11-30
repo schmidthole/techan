@@ -1,6 +1,6 @@
 package techan
 
-import "github.com/sdcoffey/big"
+import "github.com/schmidthole/big"
 
 // An allocator is a functional component which provides a portfolio allocation across many Securities.
 // A list of strategy structures is passed in to calculate the allocations based on rule analysis or

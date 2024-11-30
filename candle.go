@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 )
 
 // Candle represents basic market information for a security over a given time period

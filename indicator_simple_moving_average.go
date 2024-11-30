@@ -1,6 +1,6 @@
 package techan
 
-import "github.com/sdcoffey/big"
+import "github.com/schmidthole/big"
 
 type smaIndicator struct {
 	indicator Indicator

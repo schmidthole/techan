@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 	"github.com/stretchr/testify/assert"
 )
 

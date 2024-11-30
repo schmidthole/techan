@@ -3,7 +3,7 @@ package techan
 import (
 	"fmt"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 )
 
 // The PricingSnapshot provides point in time pricing information for all tracked securities,

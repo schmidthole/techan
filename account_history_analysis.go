@@ -4,7 +4,7 @@ import (
 	"math"
 	"os"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big" // updated import path
 	"gopkg.in/yaml.v3"
 )
 

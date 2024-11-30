@@ -3,7 +3,7 @@ package techan
 import (
 	"testing"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 )
 
 func TestBinaryFrequencyIndicator(t *testing.T) {

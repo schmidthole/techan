@@ -1,6 +1,6 @@
 package techan
 
-import "github.com/sdcoffey/big"
+import "github.com/schmidthole/big"
 
 // DerivativeIndicator returns an indicator that calculates the derivative of the underlying Indicator.
 // The derivative is defined as the difference between the value at the previous index and the value at the current index.

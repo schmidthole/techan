@@ -1,6 +1,6 @@
 package techan
 
-import "github.com/sdcoffey/big"
+import "github.com/schmidthole/big"
 
 // NewVarianceIndicator provides a way to find the variance in a base indicator, where variances is the sum of squared
 // deviations from the mean at any given index in the time series.

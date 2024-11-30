@@ -3,7 +3,7 @@ package techan
 import (
 	"testing"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 )
 
 func Test_CashToShare(t *testing.T) {

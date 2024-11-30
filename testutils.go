@@ -9,7 +9,7 @@ import (
 
 	"strconv"
 
-	"github.com/sdcoffey/big"
+	"github.com/schmidthole/big"
 	"github.com/stretchr/testify/assert"
 )
 

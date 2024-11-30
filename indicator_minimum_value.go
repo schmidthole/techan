@@ -1,6 +1,6 @@
 package techan
 
-import "github.com/sdcoffey/big"
+import "github.com/schmidthole/big"
 
 // NewMinimumValueIndicator returns a derivative Indicator which returns the minimum value
 // present in a given window. Use a window value of -1 to include all values in the

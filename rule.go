@@ -1,6 +1,6 @@
 package techan
 
-import "github.com/sdcoffey/big"
+import "github.com/schmidthole/big"
 
 // Rule is an interface describing an algorithm by which a set of criteria may be satisfied
 type Rule interface {
